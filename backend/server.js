@@ -30,7 +30,7 @@ app.get('/api/inventory', (req, res) => {
     let filteredData = inventoryData;
 
     if (make) {
-        filteredData = filteredData.filter(item => item.Make === make);
+        filteredData = filteredData.filter(item => item.brand && item.brand.toLowerCase() === make.toLowerCase());
     }
 
     if (duration) {
@@ -48,11 +48,14 @@ app.get('/api/inventory', (req, res) => {
             const filterDate = new Date();
             filterDate.setMonth(filterDate.getMonth() - monthsToSubtract);
             
-            filteredData = filteredData.filter(item => new Date(item.Date) >= filterDate);
+            filteredData = filteredData.filter(item => new Date(item.timestamp) >= filterDate);
         } else if (typeof monthsToSubtract === 'string') {
-            filteredData = filteredData.filter(item => new Date(item.Date).getFullYear() === monthsToSubtract);
+            filteredData = filteredData.filter(item => new Date(item.timestamp).getFullYear() === monthsToSubtract);
         }
     }
+
+    // Sort the data by date (assuming 'timestamp' field is in a valid date format)
+    filteredData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
     res.json(filteredData);
 });
